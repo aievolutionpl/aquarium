@@ -501,7 +501,7 @@ const SHOTS = [
 ];
 let shot = 0, camAnim = null;
 function goShot(i) { shot = i; camAnim = { pos: new THREE.Vector3(...SHOTS[i].pos), tgt: new THREE.Vector3(...SHOTS[i].tgt), t: 0 }; document.getElementById('bShot').textContent = SHOTS[i].label; }
-if (MOBILE && innerWidth < innerHeight) { SHOTS[0].pos = [0, 1.6, 8.2]; camera.position.set(0, 1.6, 8.2); camera.fov = 62; controls.maxDistance = 16; }
+if (MOBILE && innerWidth < innerHeight) { SHOTS[0].pos = [0, 1.55, 6.2]; camera.position.set(0, 1.55, 6.2); camera.fov = 72; controls.maxDistance = 16; }
 let night = false, lightMix = 0;
 const bLight = document.getElementById('bLight');
 bLight.onclick = () => { night = !night; bLight.setAttribute('aria-pressed', night); bLight.textContent = night ? 'Tryb dzienny' : 'Tryb nocny'; };
