@@ -37,16 +37,19 @@
   <div id="labels" aria-hidden="true"></div>
   <header class="head">
     <h1>Akwarium</h1>
-    <p>Spokojny, żywy zbiornik słodkowodny. Obracaj widok palcem, nakarm ryby i przyglądaj się ławicy.</p>
+    <p><span class="l">Spokojny, żywy zbiornik słodkowodny. Obracaj widok palcem, nakarm ryby i przyglądaj się ławicy.</span><span class="s">Obracaj palcem · karm ryby</span></p>
   </header>
   <nav class="panel" aria-label="Sterowanie akwarium">
     <button id="bFeed" type="button">Nakarm ryby</button>
     <button id="bLight" type="button" aria-pressed="false">Tryb nocny</button>
     <button id="bShot" type="button">Ujęcie: front</button>
     <button id="bNames" type="button" aria-pressed="false">Nazwy ryb</button>
+    <button id="bGame" type="button" class="accent">Minigra: Karmienie</button>
   </nav>
   <div id="loader" class="loader"><span>Napełnianie akwarium…</span></div>
   <div id="fps" hidden></div>
+  <div id="gHud" class="ghud" hidden><div class="gbar"><span>Punkty <b id="gScore">0</b></span><span id="gCombo" class="gcombo"></span><span>Czas <b id="gTime">60</b> s</span><button id="gStop" type="button">Zakończ</button></div><p class="ghint">Stukaj w wodę, żeby rzucić pokarm. Szybkie karmienie = combo!</p></div>
+  <div id="gRes" class="gres" hidden role="dialog" aria-label="Wynik"><h2>Koniec karmienia</h2><p>Punkty: <b id="rScore">0</b></p><p>Najlepsze combo: <b id="rCombo">×0</b></p><p>Rekord: <b id="rRec">0</b></p><div class="gbtns"><button id="gAgain" type="button" class="accent">Jeszcze raz</button><button id="gBack" type="button">Wróć do akwarium</button></div></div>
 </section>
 
 <main class="info">

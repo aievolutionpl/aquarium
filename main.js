@@ -10,7 +10,7 @@ const MOBILE = matchMedia('(max-width: 820px)').matches || /Android|iPhone|iPad/
 const loader = document.getElementById('loader');
 let revealed = false;
 function forceReveal() { if (!revealed) { revealed = true; loader.classList.add('gone'); } }
-setTimeout(forceReveal, 8000);
+setTimeout(forceReveal, 1200);
 
 // ---------- tank dimensions ----------
 const W = 11, H = 4.6, D = 4.2, WATER = 4.32, HX = W / 2, HZ = D / 2;
@@ -143,8 +143,8 @@ const back = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMa
 back.position.set(0, H / 2, -HZ + 0.005); scene.add(back);
 
 const glassMat = MOBILE
-  ? new THREE.MeshPhysicalMaterial({ color: 0xcfeff0, transparent: true, opacity: 0.08, roughness: 0.05, metalness: 0, clearcoat: 1, depthWrite: false })
-  : new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, thickness: 0.1, roughness: 0.05, ior: 1.5, metalness: 0, transparent: true, opacity: 1, clearcoat: 1, clearcoatRoughness: 0.05, depthWrite: false, specularIntensity: 1, attenuationColor: new THREE.Color(0xbfe8e0), attenuationDistance: 3 });
+  ? new THREE.MeshPhysicalMaterial({ color: 0xcfeff0, transparent: true, opacity: 0.05, roughness: 0.3, metalness: 0, clearcoat: 0, depthWrite: false })
+  : new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, thickness: 0.1, roughness: 0.05, ior: 1.5, metalness: 0, transparent: true, opacity: 1, clearcoat: 0, clearcoatRoughness: 0.3, depthWrite: false, specularIntensity: 0.3, attenuationColor: new THREE.Color(0xbfe8e0), attenuationDistance: 3 });
 const gt = 0.03;
 function pane(w, h, pos, rotY) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, gt), glassMat); m.position.copy(pos); m.rotation.y = rotY || 0; m.renderOrder = 10; scene.add(m); }
 pane(W, H, new THREE.Vector3(0, H / 2, HZ));
@@ -186,18 +186,18 @@ sand.receiveShadow = true; scene.add(sand);
 // caustics layers
 const causMats = [caus1, caus2].map((t, i) => {
   t.repeat.set(4.6 + i * 1.2, 1.9 + i * 0.5);
-  return new THREE.MeshBasicMaterial({ map: t, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.3, color: 0xcff6ff, fog: false });
+  return new THREE.MeshBasicMaterial({ map: t, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.08, color: 0xcff6ff, fog: false });
 });
 const causMeshes = causMats.map((m, i) => { const c = new THREE.Mesh(sandGeo, m); c.position.y = 0.006 + i * 0.003; c.renderOrder = 2; scene.add(c); return c; });
 
 // ---------- rocks + driftwood ----------
 const obstacles = [], solids = [], perches = [];
-const rockMat = new THREE.MeshStandardMaterial({ map: rockTex, color: 0x8a8f8c, roughness: 0.9, metalness: 0 });
+const rockMat = new THREE.MeshStandardMaterial({ map: rockTex, color: 0x5a5f5c, roughness: 1, metalness: 0 });
 function rock(x, z, s, sy) {
   x *= SX; z *= SZ; s *= 1.45;
   const g = new THREE.IcosahedronGeometry(1, 4); const p = g.attributes.position; const v = new THREE.Vector3();
   const o = rnd() * 100;
-  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const n = 1 + (fbm(v.x * 1.6 + o, v.y * 1.6 + v.z * 1.3) - 0.45) * 0.7; v.multiplyScalar(n); if (v.y < -0.3) v.y = -0.3; p.setXYZ(i, v.x, v.y, v.z); }
+  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const n = 1 + (fbm(v.x * 1.6 + o, v.y * 1.6 + v.z * 1.3) - 0.45) * 0.4; v.multiplyScalar(n); if (v.y < -0.3) v.y = -0.3; p.setXYZ(i, v.x, v.y, v.z); }
   g.computeVertexNormals();
   const m = new THREE.Mesh(g, rockMat); m.scale.set(s, s * sy, s * R(0.7, 1)); m.rotation.y = rnd() * 6;
   m.position.set(x, sandH(x, z) + s * sy * 0.15, z); m.castShadow = m.receiveShadow = true; scene.add(m); solids.push(m);
@@ -231,8 +231,8 @@ function swayMat(color, opts = {}) {
       vec3 ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
       float hh = max(transformed.y, 0.0);
       float ph = ip.x * 1.7 + ip.z * 2.3;
-      float sw = sin(uT * 0.9 + ph + hh * 1.2) * 0.6 + sin(uT * 1.7 + ph * 1.3) * 0.3;
-      transformed.x += sw * 0.09 * hh * hh;
+      float sw = sin(uT * 0.9 + ph - hh * 1.6) * 0.6 + sin(uT * 1.7 + ph * 1.3 - hh * 2.2) * 0.3;
+      transformed.x += sw * 0.09 * hh * hh + sin(ph * 3.1) * 0.07 * hh * hh;
       transformed.z += cos(uT * 0.7 + ph) * 0.05 * hh * hh;`);
   };
   return m;
@@ -251,9 +251,9 @@ function placeInstances(geo, mat, n, filter, scaleFn) {
 }
 // vallisneria ribbons at back
 {
-  const g = new THREE.PlaneGeometry(0.05, 1, 1, 10); g.translate(0, 0.5, 0);
-  const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) * (1 - y * 0.6)); }
-  placeInstances(g, swayMat(0xffffff, { transparent: false }), MOBILE ? 180 : 320, (x, z) => z < -0.45 && Math.abs(x + 1.9) > 0.5 || (z < 0 && Math.abs(x) > 2.3), () => [R(1.0, 1.6), R(2.0, 3.6)]);
+  const g = new THREE.PlaneGeometry(0.085, 1, 1, 14); g.translate(0, 0.5, 0);
+  const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) * (0.55 + Math.sin(Math.min(y, 0.999) * Math.PI) * 0.7) * (y > 0.9 ? (1 - y) * 10 : 1)); }
+  placeInstances(g, swayMat(0xffffff, { transparent: false }), MOBILE ? 130 : 230, (x, z) => z < -0.45 && Math.abs(x + 1.9) > 0.5 || (z < 0 && Math.abs(x) > 2.3), () => [R(1.0, 1.6), R(2.0, 3.6)]);
 }
 // grass clumps (blades)
 {
@@ -309,10 +309,10 @@ const NB = 90;
 const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0, metalness: 0, transparent: true, opacity: 0.45, clearcoat: 1, emissive: 0x9fe8ff, emissiveIntensity: 0.25, depthWrite: false }), NB);
 const bState = []; for (let i = 0; i < NB; i++) bState.push({ y: R(0.3, WATER), s: R(0.008, 0.03), ph: rnd() * 6, v: R(0.35, 0.7) });
 bubbles.frustumCulled = false; scene.add(bubbles);
-const ND = MOBILE ? 700 : 1600; const dg = new THREE.BufferGeometry(); const dp = new Float32Array(ND * 3);
+const ND = MOBILE ? 220 : 500; const dg = new THREE.BufferGeometry(); const dp = new Float32Array(ND * 3);
 for (let i = 0; i < ND; i++) { dp[i * 3] = R(-HX, HX); dp[i * 3 + 1] = R(0.3, WATER); dp[i * 3 + 2] = R(-HZ, HZ); }
 dg.setAttribute('position', new THREE.BufferAttribute(dp, 3));
-const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xcfe9e0, size: 0.012, transparent: true, opacity: 0.5, depthWrite: false }));
+const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x9fbfb6, size: 0.006, transparent: true, opacity: 0.28, depthWrite: false }));
 scene.add(dust);
 
 // ---------- fish ----------
@@ -507,7 +507,7 @@ function updateFish(f, dt, t) {
   for (const fo of foods) { const d = fo.p.distanceTo(p); if (d < fd && d < 4.5) { fd = d; food = fo; } }
   if (food && !(sp.bottom && food.p.y > 1.2)) {
     tmp.subVectors(food.p, p).normalize().multiplyScalar(2.6); steer.add(tmp); speed *= 1.9;
-    if (fd < 0.08 + sp.L * 0.3) { foods.splice(foods.indexOf(food), 1); f.eat = 0.4; eaten++; }
+    if (fd < 0.08 + sp.L * 0.3) { foods.splice(foods.indexOf(food), 1); f.eat = 0.4; eaten++; if (window.__onEat) window.__onEat(f); }
   } else if (sp.school) {
     sep.set(0, 0, 0); ali.set(0, 0, 0); coh.set(0, 0, 0); let n = 0;
     for (const o of fishes) {
@@ -720,7 +720,7 @@ function makeFrog() {
 {
   const sheenTex = canvasTex(256, (g2, s) => { const gr = g2.createLinearGradient(0, 0, s, s); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.42, 'rgba(255,255,255,0)'); gr.addColorStop(0.47, 'rgba(255,255,255,0.5)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.12)'); gr.addColorStop(0.56, 'rgba(255,255,255,0.35)'); gr.addColorStop(0.6, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, s, s); });
   sheenTex.wrapS = sheenTex.wrapT = THREE.ClampToEdgeWrapping;
-  const sh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: sheenTex, transparent: true, opacity: 0.07, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  const sh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: sheenTex, transparent: true, opacity: 0.035, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
   sh.position.set(0, H / 2, HZ + 0.02); sh.renderOrder = 11; scene.add(sh);
 }
 
@@ -736,7 +736,7 @@ function goShot(i) { shot = i; camAnim = { pos: new THREE.Vector3(...SHOTS[i].po
 // frame the tank so it fills the viewport (cover height; in portrait the camera slowly pans along the tank)
 function frameFront(aspect) {
   camera.fov = aspect < 1 ? 52 : 40;
-  const visH = aspect < 1 ? 4.5 : THREE.MathUtils.clamp(8.2 / aspect, 4.6, 5.8);
+  const visH = aspect < 1 ? 2.1 : THREE.MathUtils.clamp(6.8 / aspect, 3.8, 4.8);
   const d = HZ + (visH / 2) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) - HZ * 0.25;
   SHOTS[0].pos = [0, 2.3, d]; SHOTS[0].tgt = [0, 2.2, 0];
   controls.maxDistance = Math.max(18, d + 3);
@@ -744,7 +744,7 @@ function frameFront(aspect) {
 let night = false, lightMix = 0;
 const bLight = document.getElementById('bLight');
 bLight.onclick = () => { night = !night; bLight.setAttribute('aria-pressed', night); bLight.textContent = night ? 'Tryb dzienny' : 'Tryb nocny'; };
-document.getElementById('bFeed').onclick = feed;
+document.getElementById('bFeed').onclick = () => feed();
 document.getElementById('bShot').onclick = () => goShot((shot + 1) % SHOTS.length);
 let showNames = false; const labelsEl = document.getElementById('labels'); const bNames = document.getElementById('bNames');
 const labelFish = []; const seen = new Set();
@@ -752,6 +752,38 @@ for (const f of fishes) { if (!seen.has(f.kind) || f.kind === 'angel' || f.kind 
 bNames.onclick = () => { showNames = !showNames; bNames.setAttribute('aria-pressed', showNames); for (const l of labelFish) l.el.hidden = !showNames; };
 const dlg = document.getElementById('aiDlg'); document.getElementById('bAi').onclick = () => dlg.showModal();
 
+
+// ---------- mini-game: Karmienie ----------
+{
+  const G = { on: false, t: 0, score: 0, combo: 0, best: 0, last: -9, timer: null };
+  const hud = document.getElementById('gHud'), res = document.getElementById('gRes');
+  const $ = (id) => document.getElementById(id);
+  const rec = () => +(localStorage.getItem('aqRecord') || 0);
+  const pop = (txt, x, y) => { const e = document.createElement('div'); e.className = 'gpop'; e.textContent = txt; e.style.left = x + 'px'; e.style.top = y + 'px'; hud.appendChild(e); setTimeout(() => e.remove(), 900); };
+  window.__onEat = (f) => {
+    if (!G.on) return; const now = performance.now() / 1000;
+    G.combo = now - G.last < 1.6 ? G.combo + 1 : 1; G.last = now; G.best = Math.max(G.best, G.combo);
+    const pts = 10 * G.combo; G.score += pts; const sp = toScreen(f.pos); pop('+' + pts + (G.combo > 1 ? ' ×' + G.combo : ''), sp.x, sp.y);
+  };
+  const draw = () => { $('gScore').textContent = G.score; $('gTime').textContent = Math.ceil(G.t); $('gCombo').textContent = G.combo > 1 ? 'Combo ×' + G.combo : ''; };
+  function start() { res.hidden = true; G.on = true; G.t = 60; G.score = 0; G.combo = 0; G.best = 0; hud.hidden = false; document.body.classList.add('game'); draw();
+    clearInterval(G.timer); G.timer = setInterval(() => { G.t -= 0.25; if (G.combo && performance.now() / 1000 - G.last > 1.6) G.combo = 0; draw(); if (G.t <= 0) end(); }, 250); }
+  function end() { clearInterval(G.timer); G.on = false; hud.hidden = true; const r = Math.max(rec(), G.score); const nr = G.score > rec() && G.score > 0; localStorage.setItem('aqRecord', r);
+    $('rScore').textContent = G.score; $('rCombo').textContent = '×' + G.best; $('rRec').textContent = r + (nr ? ' — nowy rekord!' : ''); res.hidden = false; }
+  function quit() { res.hidden = true; hud.hidden = true; G.on = false; clearInterval(G.timer); document.body.classList.remove('game'); }
+  $('bGame').onclick = start; $('gAgain').onclick = start; $('gBack').onclick = quit; $('gStop').onclick = end;
+  // tap into water = throw food at that x
+  let down = null;
+  canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+  canvas.addEventListener('pointerup', (e) => {
+    if (!G.on || !down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 12) return;
+    const r = canvas.getBoundingClientRect(); const v = new THREE.Vector3(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1, 0.5).unproject(camera).sub(camera.position).normalize();
+    const k = (0 - camera.position.z) / v.z; const x = camera.position.x + v.x * k;
+    const before = foods.length; for (let i = 0; i < 8 && foods.length < NF; i++) foods.push({ p: new THREE.Vector3(THREE.MathUtils.clamp(x + R(-0.25, 0.25), -HX + 0.3, HX - 0.3), WATER - 0.01, R(-0.6, 0.6)), rot: rnd() * 6, ph: rnd() * 6, float: R(0.3, 1.2), age: 0 });
+    if (foods.length > before) pop('•', e.clientX - r.left, e.clientY - r.top);
+  });
+  window.__game = { state: () => ({ on: G.on, time: G.t, score: G.score, combo: G.combo, best: G.best, record: rec() }), start, end };
+}
 // parallax
 const ptr = { x: 0, y: 0 }, par = { x: 0, y: 0 };
 addEventListener('pointermove', (e) => { ptr.x = e.clientX / innerWidth - 0.5; ptr.y = e.clientY / innerHeight - 0.5; }, { passive: true });
@@ -798,7 +830,7 @@ function tick() {
   sun.intensity = 2.6 * (1 - lightMix) + 0.25 * lightMix; sun.color.setHSL(THREE.MathUtils.lerp(0.11, 0.6, lightMix), 0.4, 0.9);
   hemi.intensity = 1.1 - 0.8 * lightMix; fill.intensity = 6 + 4 * lightMix; fill.color.setHSL(THREE.MathUtils.lerp(0.52, 0.62, lightMix), 0.7, 0.55);
   scene.fog.color.copy(dayFog).lerp(nightFog, lightMix);
-  causMats.forEach(m => m.opacity = 0.3 * (1 - lightMix * 0.8));
+  causMats.forEach(m => m.opacity = 0.09 * (1 - lightMix * 0.8));
   lampStrip.material.color.setHSL(THREE.MathUtils.lerp(0.1, 0.62, lightMix), 0.6, THREE.MathUtils.lerp(0.95, 0.35, lightMix));
   bloom.strength = 0.4 + lightMix * 0.45;
   shafts.forEach(s => s.m.opacity = s.base * (0.7 + 0.3 * Math.sin(t * 0.5 + s.ph)) * (1 - lightMix * 0.85));
