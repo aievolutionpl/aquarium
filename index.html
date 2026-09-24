@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pl" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="google" content="notranslate">
+<title>Akwarium 3D — żywy zbiornik w przeglądarce</title>
+<meta name="description" content="Realistyczna wizualizacja akwarium 3D: neonki, skalary, gupiki, kiryski i bojownik pływają wśród roślin. Nakarm ryby, zmień światło i ujęcie.">
+<meta property="og:title" content="Akwarium 3D — żywy zbiornik w przeglądarce">
+<meta property="og:description" content="Neonki, skalary, gupiki, kiryski i bojownik w realistycznym akwarium 3D. Nakarm ryby jednym dotknięciem.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aievolutionpl.github.io/aquarium/">
+<meta name="theme-color" content="#050809">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23061216'/%3E%3Cpath d='M12 32c8-12 24-14 34 0-10 14-26 12-34 0z' fill='%2338c8e8'/%3E%3Cpath d='M46 32l10-9v18z' fill='%23e8483a'/%3E%3Ccircle cx='20' cy='30' r='2.4' fill='%23061216'/%3E%3C/svg%3E">
+<script>
+(function(){
+  function show(msg){
+    try{ document.title='ERROR: '+msg;
+      var o=document.getElementById('err'); if(!o){o=document.createElement('pre');o.id='err';document.documentElement.appendChild(o);}
+      o.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#300;color:#fff;font:12px monospace;padding:10px;border-radius:8px;white-space:pre-wrap;max-height:40vh;overflow:auto';
+      o.textContent+=msg+'\n';
+    }catch(e){}
+  }
+  window.addEventListener('error',function(e){show((e.message||'error')+' @'+(e.filename||'')+':'+(e.lineno||''));});
+  window.addEventListener('unhandledrejection',function(e){show('Promise: '+(e.reason&&(e.reason.message||e.reason)));});
+})();
+</script>
+<script type="importmap">
+{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/jsm/"}}
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section class="hero" id="hero">
+  <canvas id="c" aria-label="Wizualizacja akwarium 3D"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div id="labels" aria-hidden="true"></div>
+  <header class="head">
+    <h1>Akwarium</h1>
+    <p>Spokojny, żywy zbiornik słodkowodny. Obracaj widok palcem, nakarm ryby i przyglądaj się ławicy.</p>
+  </header>
+  <nav class="panel" aria-label="Sterowanie akwarium">
+    <button id="bFeed" type="button">Nakarm ryby</button>
+    <button id="bLight" type="button" aria-pressed="false">Tryb nocny</button>
+    <button id="bShot" type="button">Ujęcie: front</button>
+    <button id="bNames" type="button" aria-pressed="false">Nazwy ryb</button>
+  </nav>
+  <div id="loader" class="loader"><span>Napełnianie akwarium…</span></div>
+  <div id="fps" hidden></div>
+</section>
+
+<main class="info">
+  <h2>Mieszkańcy zbiornika</h2>
+  <div class="cards">
+    <article><h3>Neon Innesa</h3><p>Mała ryba ławicowa z Amazonii. Świecący niebieski pas i czerwony tył sprawiają, że ławica mieni się w półmroku.</p></article>
+    <article><h3>Skalar</h3><p>Wysoki, spłaszczony bocznie pielęgnic z długimi płetwami. Pływa dostojnie w środkowej toni, patrolując swój rewir.</p></article>
+    <article><h3>Gupik</h3><p>Barwny żyworodny gatunek. Samce noszą szeroki, wachlarzowy ogon w odcieniach pomarańczy i błękitu.</p></article>
+    <article><h3>Kirysek</h3><p>Ryba denna w pancerzu z kostnych płytek. Przeszukuje piasek wąsikami w poszukiwaniu resztek pokarmu.</p></article>
+    <article><h3>Bojownik</h3><p>Samotnik o długich, weloniastych płetwach. Porusza się powoli, a jego płetwy falują jak jedwab.</p></article>
+  </div>
+</main>
+
+<footer class="ai-bar">
+  <span>Strona i wizualizacja wygenerowane przez agenta AI · obraz poglądowy, może zawierać uproszczenia</span>
+  <button id="bAi" type="button">Klauzula AI</button>
+</footer>
+<dialog id="aiDlg">
+  <h2>Klauzula AI</h2>
+  <p><b>Charakter strony.</b> Strona i animacja 3D zostały w całości wygenerowane przez agenta AI (Hermes Agent) dla AI Evolution Labs. Nie ma tu treści redakcyjnych.</p>
+  <p><b>Uproszczenia.</b> Wygląd i zachowanie ryb to artystyczne przybliżenie, nie materiał naukowy ani porada akwarystyczna.</p>
+  <p><b>Zasoby.</b> Wszystkie tekstury i modele powstają proceduralnie w przeglądarce. Silnik: Three.js (licencja MIT).</p>
+  <p><b>Prywatność.</b> Brak ciasteczek, śledzenia i profilowania. Hosting: GitHub Pages (standardowe logi serwera).</p>
+  <p><b>Odpowiedzialność.</b> W najszerszym zakresie dozwolonym prawem nie odpowiadamy za dostępność strony ani decyzje podjęte na jej podstawie.</p>
+  <p class="ver">Wersja 1.0 · 24.09.2026 · AI Evolution Labs</p>
+  <form method="dialog"><button type="submit">Zamknij</button></form>
+</dialog>
+<script type="module" src="main.js"></script>
+</body>
+</html>
