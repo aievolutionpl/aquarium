@@ -850,7 +850,7 @@ let shot = 0, camAnim = null;
 let hero = null, heroT = 0; const heroCam = new THREE.Vector3(), heroTgt = new THREE.Vector3();
 const heroLen = (f) => f.sp.L * f.g.scale.x;
 function pickHero() { let best = null, bs = -1e9; for (const f of fishes) { if (f.kind !== 'angel' && f.kind !== 'betta') continue; const sc = f.pos.z * 1.5 - Math.abs(f.pos.x) * 0.3 + (f.kind === 'angel' ? 0.3 : 0.2) + (f === hero ? 0.8 : 0); if (sc > bs) { bs = sc; best = f; } } hero = best; }
-function macroDist(f) { const a = camera.aspect, th = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)); const frac = a < 1 ? 0.46 : 0.34; return heroLen(f) / (frac * 2 * th * a); }
+function macroDist(f) { const a = camera.aspect, th = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)); const frac = a < 1 ? 0.26 : 0.22; return heroLen(f) / (frac * 2 * th * a); }
 function macroPose(out, tgt) { const f = hero; const d = macroDist(f); tgt.copy(f.pos); tgt.y += 0.02; out.set(f.pos.x + Math.sin(elapsed * 0.1) * d * 0.25, f.pos.y + d * 0.08, f.pos.z + d); }
 function heroPx() { if (!hero) return null; const q = new THREE.Vector3(0, 0, heroLen(hero) / 2).applyQuaternion(hero.g.quaternion); const a = toScreen(hero.pos.clone().add(q)), b = toScreen(hero.pos.clone().sub(q)); return { kind: hero.kind, px: Math.round(Math.hypot(a.x - b.x, a.y - b.y)), fullLenPx: Math.round(heroLen(hero) / (2 * camera.position.distanceTo(hero.pos) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) * canvas.clientWidth) }; }
 function setMacroScene(on) { dust.visible = !on; }
@@ -953,7 +953,7 @@ var grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, tDepth: { va
     if (uAO > 0.0) { float ao = 0.0; float rad = clamp(22.0 / dC, 2.0, 18.0);
       for (int i = 0; i < 8; i++) { float a = float(i) * 0.785398 + 0.4; vec2 o = uv + vec2(cos(a), sin(a)) * rad * (0.5 + 0.5 * fract(float(i) * 0.618)) / uRes;
         float dd = dC - lin(o); ao += clamp(dd / 0.35, 0.0, 1.0) * (1.0 - smoothstep(0.35, 1.2, dd)); }
-      c *= 1.0 - clamp(ao / 8.0, 0.0, 1.0) * 0.45 * uAO; }
+      c *= 1.0 - clamp(ao / 8.0, 0.0, 1.0) * 0.30 * uAO; }
     // absorption: red dies with distance and depth in water
     float depth = 1.0 - vUv.y;
     float dist = clamp((dC - 3.0) / 14.0, 0.0, 1.0);
